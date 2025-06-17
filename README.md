@@ -21,3 +21,42 @@ Example Response from `/home`:
   "status": "successful"
 }
 
+### ⚙️ Task 2: Consistent Hashing
+
+This task implements a consistent hashing mechanism to evenly distribute client requests among a dynamic set of server replicas.
+
+#### 🧠 Core Concepts
+
+- The system maintains a **circular hash ring with 512 slots**.
+- Each server is represented by **9 virtual replicas** (K = log₂(512)).
+- Requests and servers are mapped to slots using custom hash functions:
+  - **Request Hash**: `H(i) = 3i + 17`
+  - **Virtual Server Hash**: `Φ(i,j) = i + 3j + 25`
+- **Linear probing** is used to resolve hash collisions when placing virtual servers.
+
+#### 📦 Features Implemented
+
+- `add_server(server_id)` – Adds a server with 9 virtual replicas into the hash ring.
+- `remove_server(server_id)` – Removes the server and all its associated virtual nodes.
+- `get_server_for_key(request_id)` – Returns the correct server based on the hashed request ID.
+
+#### 🧪 Sample Usage
+
+```python
+from consistent_hash import ConsistentHash
+
+ch = ConsistentHash()
+ch.add_server(1)
+ch.add_server(2)
+ch.add_server(3)
+
+for i in range(10):
+    server = ch.get_server_for_key(i)
+    print(f"Request {i} routed to Server {server}")
+
+```arduino
+Sample output:
+Request 0 routed to Server 2
+Request 1 routed to Server 1
+Request 2 routed to Server 3
+...
