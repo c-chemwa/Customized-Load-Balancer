@@ -20,7 +20,9 @@ Example Response from `/home`:
   "message": "Hello from Server: 1",
   "status": "successful"
 }
+` ``` `
 
+---
 ### ⚙️ Task 2: Consistent Hashing
 
 This task implements a consistent hashing mechanism to evenly distribute client requests among a dynamic set of server replicas.
