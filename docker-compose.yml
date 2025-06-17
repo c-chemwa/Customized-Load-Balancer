@@ -1,0 +1,21 @@
+services:
+  server1:
+    build: ./server
+    environment:
+      - SERVER_ID=1
+    ports:
+      - "5001:5000"
+    networks:
+      - net1
+
+  server2:
+    build: ./server
+    environment:
+      - SERVER_ID=2
+    ports:
+      - "5002:5000"
+    networks:
+      - net1
+
+networks:
+  net1:
