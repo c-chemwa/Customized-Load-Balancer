@@ -1,23 +1,32 @@
-# Customized-Load-Balancer
-
-Implementation of a load balancer that routes the requests coming from several clients asynchronously among several servers so that the load is nearly evenly distributed among them.
+Here’s a polished, professional, and **assignment-aligned README** for your `Customized-Load-Balancer` project:
 
 ---
 
-## 📌 Task 1: Web Server
+# 🚦 Customized Load Balancer
 
-This task implements a simple web server using **Python Flask**, containerized with Docker. Each server instance responds with its unique ID and a heartbeat check, which will later be used by the load balancer.
+A Dockerized load balancer built with Flask that distributes asynchronous client requests evenly across multiple server replicas using **consistent hashing**. Designed for fault-tolerant, scalable request routing in distributed systems.
 
 ---
 
-### 🚀 Endpoints
+## 🧱 Project Structure
 
-| Method | Endpoint      | Description                                           |
-|--------|---------------|-------------------------------------------------------|
-| GET    | `/home`       | Returns the server's unique ID                       |
-| GET    | `/heartbeat`  | Responds with `200 OK` to signal server health       |
+* **Task 1 – Web Server**: Lightweight Flask server with health check endpoints.
+* **Task 2 – Consistent Hashing**: Custom hashing logic for even distribution using a circular hash ring.
+* **Task 3 – Load Balancer** *(WIP/Implemented)*: Container that routes requests, manages replica states, and handles failures dynamically.
+* **Task 4 – Analysis**: Performance testing and system behavior evaluation under load and failure.
 
-Example Response from `/home`:
+---
+
+## 🖥️ Task 1: Web Server
+
+Each server runs a Flask app and exposes two endpoints:
+
+| Method | Endpoint     | Description                        |
+| ------ | ------------ | ---------------------------------- |
+| GET    | `/home`      | Returns a greeting with server ID  |
+| GET    | `/heartbeat` | Returns `200 OK` for health checks |
+
+### 🔁 Example Response
 
 ```json
 {
@@ -26,34 +35,35 @@ Example Response from `/home`:
 }
 ```
 
----
-
-## ⚙️ Task 2: Consistent Hashing
-
-This task implements a consistent hashing mechanism to evenly distribute client requests among a dynamic set of server replicas.
+> Server ID is set via environment variable at container runtime.
 
 ---
 
-### 🧠 Core Concepts
+## 🧠 Task 2: Consistent Hashing
 
-- The system maintains a **circular hash ring with 512 slots**.
-- Each server is represented by **9 virtual replicas** (K = log₂(512)).
-- Requests and servers are mapped to slots using custom hash functions:
-  - **Request Hash**: `H(i) = 3i + 17`
-  - **Virtual Server Hash**: `Φ(i,j) = i + 3j + 25`
-- **Linear probing** is used to resolve hash collisions when placing virtual servers.
+Implements a hash ring with 512 slots to route requests based on consistent hashing. Ensures minimal re-mapping during scale-up/down and fault recovery.
+
+### 🔍 Details
+
+* **Hash Ring Size**: 512 slots
+* **Virtual Nodes per Server**: 9 (K = log₂512)
+* **Hash Functions**:
+
+  * Requests: `H(i) = i + 2i² + 17`
+  * Virtual Servers: `Φ(i,j) = i + j + 2j² + 25`
+* **Collision Resolution**: Linear probing
+
+### 📦 Supported Functions
+
+```python
+add_server(server_id)      # Adds server with virtual replicas
+remove_server(server_id)   # Removes server and its replicas
+get_server_for_key(key)    # Gets server for a given request ID
+```
 
 ---
 
-### 📦 Features Implemented
-
-- `add_server(server_id)` – Adds a server with 9 virtual replicas into the hash ring.
-- `remove_server(server_id)` – Removes the server and all its associated virtual nodes.
-- `get_server_for_key(request_id)` – Returns the correct server based on the hashed request ID.
-
----
-
-### 🧪 Sample Usage
+## 🔄 Sample Usage
 
 ```python
 from consistent_hash import ConsistentHash
@@ -68,25 +78,83 @@ for i in range(10):
     print(f"Request {i} routed to Server {server}")
 ```
 
-Sample output:
+---
 
+## 📡 Task 3: Load Balancer (Planned or Included)
+
+The load balancer should:
+
+* Route requests using consistent hashing
+* Manage and expose replicas via these endpoints:
+
+  * `GET /rep` — List active server containers
+  * `POST /add` — Add server instances
+  * `DELETE /rm` — Remove server instances
+  * `GET /<path>` — Route to underlying servers (e.g. `/home`)
+* Monitor heartbeats and auto-restart failed servers (via Docker API)
+* Be containerized and connect all replicas in a shared Docker network
+
+---
+
+## 📊 Task 4: Performance Analysis
+
+Conduct tests to evaluate:
+
+* Load distribution across N servers for 10,000 async requests
+* Scalability when increasing N from 2 to 6
+* Failure detection and auto-recovery behavior
+* Effect of modifying hash functions on distribution uniformity
+
+Plots include:
+
+* ✅ Bar chart: Request count per server (N=3)
+* ✅ Line chart: Avg. load per server across different N
+* ✅ Error handling: Invalid routes, broken replicas
+
+---
+
+## 🐳 Deployment
+
+### Requirements
+
+* Docker ≥ 20.10.23
+* Docker Compose
+* Python 3.8+
+
+### Run with Docker Compose
+
+```bash
+make build     # Build all images
+make up        # Launch servers and load balancer
+make down      # Tear down all containers
 ```
-Request 0 routed to Server 2
-Request 1 routed to Server 1
-Request 2 routed to Server 3
-...
+
+Or manually:
+
+```bash
+docker-compose up --build
 ```
 
 ---
 
-### ✅ Status
+## 📁 Repo Contents
 
-- [x] Circular hash ring (512 slots)
-- [x] 9 virtual nodes per server
-- [x] Custom hash functions for requests and servers
-- [x] Collision resolution with linear probing
-- [x] Fully tested with request routing simulation
-
-This hashing structure will now be used in Task 3 to implement routing and fault-tolerant request scheduling inside the load balancer.
+| File/Dir             | Description                             |
+| -------------------- | --------------------------------------- |
+| `server/`            | Flask web server code                   |
+| `load_balancer/`     | Load balancer routing logic             |
+| `consistent_hash.py` | Consistent hashing module               |
+| `Dockerfile`         | Builds server or balancer container     |
+| `docker-compose.yml` | Multi-container setup and networking    |
+| `Makefile`           | Simplified commands for build/run/clean |
+| `README.md`          | Project overview and setup              |
 
 ---
+
+## 📚 References
+
+* [Docker Docs](https://docs.docker.com/get-started/)
+* [CS168 – Stanford: Consistent Hashing](https://web.stanford.edu/class/cs168/l/l1.pdf)
+* [Makefile Tutorial](https://makefiletutorial.com/)
+* [shardQ Sample Project](https://github.com/prasenjit52282/shardQ)
+
