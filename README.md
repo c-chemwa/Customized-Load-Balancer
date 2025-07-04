@@ -1,12 +1,8 @@
-Here’s a polished, professional, and **assignment-aligned README** for your `Customized-Load-Balancer` project:
-
----
-
 # 🚦 Customized Load Balancer
 
 A Dockerized load balancer built with Flask that distributes asynchronous client requests evenly across multiple server replicas using **consistent hashing**. Designed for fault-tolerant, scalable request routing in distributed systems.
 
----
+---git 
 
 ## 🧱 Project Structure
 
