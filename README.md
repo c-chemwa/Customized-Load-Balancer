@@ -92,20 +92,97 @@ The load balancer should:
 
 ---
 
+---
+
 ## 📊 Task 4: Performance Analysis
 
-Conduct tests to evaluate:
+This task simulates and evaluates how the consistent hashing implementation distributes client requests, handles server failures, and behaves under modified hash functions.
 
-* Load distribution across N servers for 10,000 async requests
-* Scalability when increasing N from 2 to 6
-* Failure detection and auto-recovery behavior
-* Effect of modifying hash functions on distribution uniformity
+---
 
-Plots include:
+### 🧪 A-1: Request Distribution on 3 Servers
 
-* ✅ Bar chart: Request count per server (N=3)
-* ✅ Line chart: Avg. load per server across different N
-* ✅ Error handling: Invalid routes, broken replicas
+- **Simulation**: 10,000 requests sent to 3 servers.
+- **Configuration**: 2048 slots, 100 virtual replicas per server.
+- **Hash Function**: `md5(key)` → uniform distribution
+- **Goal**: Measure how evenly requests are distributed.
+
+**Sample Output:**
+
+```text
+A-1 Results: {1: 3342, 2: 3320, 3: 3338}
+```
+
+**Visualization:**
+
+![A-1 Distribution](visualizations/a1_distribution.png)
+
+---
+
+### 📈 A-2: Scalability Across 2 to 6 Servers
+
+- **Simulation**: Run 10,000 requests each while increasing server count from 2 to 6.
+- **Goal**: Track average load per server.
+
+**Sample Output:**
+
+```text
+A-2 Results: [5000.0, 3333.3, 2500.0, 2000.0, 1666.6]
+```
+
+**Visualization:**
+
+![A-2 Average Load](visualizations/a2_avg_loads.png)
+
+---
+
+### 🧯 A-3: Failure and Recovery
+
+- **Scenario**:
+  1. Start with servers 1, 2, 3.
+  2. Simulate failure by removing server 2.
+  3. Simulate recovery by adding server 4.
+- **Goal**: Verify correct removal and integration of replicas.
+
+**Sample Output:**
+
+```text
+A-3 Results: [1, 3, 4]
+```
+
+**Visualization:**
+
+![A-3 Failure and Recovery](visualizations/a3_failure_recovery.png)
+
+---
+
+### 🔁 A-4: Modified Hash Functions
+
+- **Hash Functions Used**:
+  - `H(i) = sha256(i)`
+  - `Φ(i,j) = sha256(f"{i}-{j}")`
+- **Goal**: Evaluate the impact of different hash functions on distribution.
+
+**Sample Output:**
+
+```text
+A-4 Modified Results: {1: 3311, 2: 3365, 3: 3324}
+```
+
+**Visualization:**
+
+![A-4 Modified Hash](visualizations/a4_modified_hash.png)
+
+---
+
+### ✅ Status
+
+- [x] Balanced load distribution with cryptographic hashes
+- [x] Smooth scalability across multiple server counts
+- [x] Successful simulation of failure and recovery
+- [x] Consistent distribution with alternate hash functions
+
+The analysis validates that the consistent hashing system is **scalable**, **fault-tolerant**, and **load-balanced**.
 
 ---
 

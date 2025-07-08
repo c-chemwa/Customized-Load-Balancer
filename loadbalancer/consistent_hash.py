@@ -1,23 +1,26 @@
+import hashlib
+
 class ConsistentHash:
-    def __init__(self, num_slots=512, virtuals_per_server=9):
+    def __init__(self, num_slots=2048, virtuals_per_server=100):
         self.num_slots = num_slots
         self.virtuals = virtuals_per_server
         self.hash_ring = {}      # slot → server_id
         self.sorted_slots = []   # ordered slot positions
         self.server_virtuals = {}  # server_id → list of slots
 
-    def _hash_request(self, i):
-        return (3 * i + 17) % self.num_slots
+    def _hash_request(self, key):
+        h = hashlib.md5(str(key).encode()).hexdigest()
+        return int(h, 16) % self.num_slots
 
     def _hash_virtual(self, server_id, j):
-        return (server_id + 3 * j + 25) % self.num_slots
+        h = hashlib.md5(f"{server_id}:{j}".encode()).hexdigest()
+        return int(h, 16) % self.num_slots
 
     def add_server(self, server_id):
         self.server_virtuals[server_id] = []
         for j in range(self.virtuals):
             slot = self._hash_virtual(server_id, j)
             original_slot = slot
-            # Linear probing in case of collision
             while slot in self.hash_ring:
                 slot = (slot + 1) % self.num_slots
                 if slot == original_slot:
@@ -39,5 +42,4 @@ class ConsistentHash:
         for s in self.sorted_slots:
             if s >= slot:
                 return self.hash_ring[s]
-        # wrap around
         return self.hash_ring[self.sorted_slots[0]] if self.sorted_slots else None
