@@ -2,8 +2,6 @@
 
 A Dockerized load balancer built with Flask that distributes asynchronous client requests evenly across multiple server replicas using **consistent hashing**. Designed for fault-tolerant, scalable request routing in distributed systems.
 
----git 
-
 ## 🧱 Project Structure
 
 * **Task 1 – Web Server**: Lightweight Flask server with health check endpoints.
